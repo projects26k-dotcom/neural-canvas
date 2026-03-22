@@ -1,6 +1,6 @@
 /* ── Neural Canvas — app.js ─────────────────────────────────────── */
 
-const API = "http://localhost:3001/api";
+const API = "https://neural-canvas.onrender.com";
 
 // ── State ─────────────────────────────────────────────────────────
 let state = {
