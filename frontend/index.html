@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Neural Canvas — AI Creative Studio</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+
+    <!-- ── Animated Background ── -->
+    <canvas id="bg-canvas"></canvas>
+
+    <!-- ── Header ── -->
+    <header>
+        <div class="logo">
+            <div class="logo-icon">
+                <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+                    <circle cx="14" cy="14" r="13" stroke="var(--accent)" stroke-width="1.5" />
+                    <path d="M8 14 Q14 4 20 14 Q14 24 8 14Z" fill="var(--accent)" opacity="0.6" />
+                    <circle cx="14" cy="14" r="3" fill="var(--accent)" />
+                </svg>
+            </div>
+            <span class="logo-text">NEURAL<em>CANVAS</em></span>
+        </div>
+
+        <nav class="mode-nav">
+            <button class="mode-btn active" data-mode="story">📖 Story</button>
+            <button class="mode-btn" data-mode="poem">🌸 Poem</button>
+            <button class="mode-btn" data-mode="idea">💡 Ideas</button>
+            <button class="mode-btn" data-mode="code">⚡ Code</button>
+            <button class="mode-btn" data-mode="image_prompt">🎨 Art Prompt</button>
+            <button class="mode-btn" data-mode="chat">🧠 Chat</button>
+        </nav>
+
+        <div class="header-right">
+            <div class="status-dot" id="status-dot"></div>
+            <span id="status-text">connecting...</span>
+        </div>
+    </header>
+
+    <!-- ── Main Layout ── -->
+    <main>
+
+        <!-- ── Left Panel: Controls ── -->
+        <aside class="panel panel-left">
+            <div class="panel-section">
+                <label class="panel-label">MODEL</label>
+                <select id="model-select" class="styled-select">
+                    <option value="llama-3.3-70b-versatile">Llama 3.3 70B</option>
+                    <option value="llama-3.1-8b-instant">Llama 3.1 8B (Fast)</option>
+                    <option value="mixtral-8x7b-32768">Mixtral 8x7B</option>
+                    <option value="gemma2-9b-it">Gemma 2 9B</option>
+                </select>
+            </div>
+
+            <div class="panel-section">
+                <label class="panel-label">CREATIVITY</label>
+                <div class="slider-wrapper">
+                    <input type="range" id="temp-slider" min="0" max="100" value="90" />
+                    <div class="slider-labels"><span>Precise</span><span id="temp-val">0.9</span><span>Wild</span></div>
+                </div>
+            </div>
+
+            <div class="panel-section">
+                <label class="panel-label">QUICK SPARKS</label>
+                <div class="sparks" id="sparks"></div>
+            </div>
+
+            <div class="panel-section">
+                <label class="panel-label">CANVAS HISTORY</label>
+                <div class="history-list" id="history-list">
+                    <p class="empty-state">No creations yet...</p>
+                </div>
+            </div>
+
+            <button class="clear-btn" id="clear-btn">✕ Clear Canvas</button>
+        </aside>
+
+        <!-- ── Center: Canvas ── -->
+        <section class="canvas-area">
+
+            <!-- Mode Header -->
+            <div class="canvas-header">
+                <div class="mode-indicator" id="mode-indicator">
+                    <span class="mode-icon" id="mode-icon">📖</span>
+                    <span class="mode-label" id="mode-label">STORY MODE</span>
+                </div>
+                <div class="canvas-actions">
+                    <button class="action-btn" id="copy-btn" title="Copy">⎘ Copy</button>
+                    <button class="action-btn" id="download-btn" title="Download">↓ Save</button>
+                </div>
+            </div>
+
+            <!-- Output Area -->
+            <div class="output-wrapper">
+                <div class="output-area" id="output-area">
+                    <div class="welcome-screen" id="welcome-screen">
+                        <div class="welcome-orb"></div>
+                        <h2>What will you create today?</h2>
+                        <p>Choose a mode, write your prompt, and let the neural canvas paint with words.</p>
+                    </div>
+                </div>
+                <div class="streaming-cursor" id="cursor" style="display:none">▊</div>
+            </div>
+
+            <!-- Token counter -->
+            <div class="token-bar">
+                <span id="token-count">0 tokens</span>
+                <span id="gen-time"></span>
+            </div>
+
+            <!-- Input Area -->
+            <div class="input-area">
+                <div class="input-wrapper">
+                    <textarea id="prompt-input" placeholder="Describe your vision... the AI will manifest it."
+                        rows="3"></textarea>
+                    <div class="input-footer">
+                        <span class="hint">⏎ Shift+Enter new line &nbsp;·&nbsp; Enter to generate</span>
+                        <button class="generate-btn" id="generate-btn">
+                            <span class="btn-text">Generate</span>
+                            <span class="btn-icon">→</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- ── Right Panel: Stats ── -->
+        <aside class="panel panel-right">
+            <div class="panel-section">
+                <label class="panel-label">LIVE STATS</label>
+                <div class="stat-grid">
+                    <div class="stat-card">
+                        <div class="stat-val" id="stat-tokens">0</div>
+                        <div class="stat-key">Tokens</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-val" id="stat-words">0</div>
+                        <div class="stat-key">Words</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-val" id="stat-sessions">0</div>
+                        <div class="stat-key">Generations</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-val" id="stat-chars">0</div>
+                        <div class="stat-key">Characters</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel-section">
+                <label class="panel-label">GENERATION LOG</label>
+                <div class="gen-log" id="gen-log"></div>
+            </div>
+
+            <div class="panel-section">
+                <label class="panel-label">MODE INFO</label>
+                <div class="mode-info" id="mode-info"></div>
+            </div>
+        </aside>
+
+    </main>
+
+    <!-- ── Toast ── -->
+    <div class="toast" id="toast"></div>
+
+    <script src="app.js"></script>
+</body>
+
+</html>
